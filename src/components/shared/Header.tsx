@@ -55,6 +55,7 @@ const adminNavItems: MainNavItem[] = [
   { href: '/admin/workshop', label: 'Oficina', icon: ConstructionIcon },
   { href: '/admin/users', label: 'Usuários', icon: UsersIcon },
   { href: '/admin/reports', label: 'Relatórios', icon: BarChart3Icon },
+  { href: '/admin/system-settings', label: 'Configurações', icon: SettingsIcon },
 ];
 
 

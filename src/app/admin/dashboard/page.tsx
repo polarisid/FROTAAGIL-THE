@@ -189,7 +189,7 @@ export default function AdminDashboardPage() {
 
 
   const recentIncidents = incidents
-    ?.filter(i => i.status !== 'resolved') 
+    ?.filter(i => i.status !== 'resolved' && i.status !== 'cancelled') 
     .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0,5) || [];
 
@@ -398,5 +398,7 @@ export default function AdminDashboardPage() {
     </Container>
   );
 }
+
+    
 
     
