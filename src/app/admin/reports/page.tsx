@@ -10,8 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangleIcon, BarChart3Icon, UsersIcon, TruckIcon, CalendarDaysIcon, CalendarRangeIcon, ListChecksIcon, CalendarIcon as CalendarFilterIcon, TrendingUpIcon, DollarSignIcon, WrenchIcon, ReceiptTextIcon, DownloadIcon } from 'lucide-react';
-import { getOperatorPerformanceReport, getVehicleMileageReport, getVehicleCostReport } from '@/lib/services/reportService';
-import type { OperatorPerformanceReportItem, VehicleMileageReportItem, VehicleCostReportItem, Maintenance, Fine } from '@/lib/types';
+import { getVehicleMileageReport, getVehicleCostReport } from '@/lib/services/reportService';
+import type { VehicleMileageReportItem, VehicleCostReportItem, Maintenance, Fine } from '@/lib/types';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -32,11 +32,6 @@ export default function AdminReportsPage() {
   const [vehicleDetailsDialogOpen, setVehicleDetailsDialogOpen] = useState(false);
   const [selectedVehicleForDetails, setSelectedVehicleForDetails] = useState<VehicleCostReportItem | null>(null);
   const { toast } = useToast();
-
-  const { data: operatorPerformance, isLoading: operatorLoading, error: operatorError } = useQuery<OperatorPerformanceReportItem[], Error>({
-    queryKey: ['operatorPerformanceReport', reportReferenceDate.toISOString().split('T')[0]],
-    queryFn: () => getOperatorPerformanceReport(reportReferenceDate),
-  });
 
   const { data: vehicleMileage, isLoading: vehicleLoading, error: vehicleError } = useQuery<VehicleMileageReportItem[], Error>({
     queryKey: ['vehicleMileageReport', reportReferenceDate.toISOString().split('T')[0]],
@@ -88,8 +83,8 @@ export default function AdminReportsPage() {
   });
 
 
-  const isLoading = operatorLoading || vehicleLoading || costsLoading;
-  const queryError = operatorError || vehicleError || costsError;
+  const isLoading = vehicleLoading || costsLoading;
+  const queryError = vehicleError || costsError;
 
   const selectedWeekStart = startOfWeek(reportReferenceDate, { locale: ptBR, weekStartsOn: 1 });
   const selectedWeekEnd = endOfWeek(reportReferenceDate, { locale: ptBR, weekStartsOn: 1 });
@@ -158,7 +153,7 @@ export default function AdminReportsPage() {
   if (isLoading) {
     return (
       <Container>
-        <PageTitle title="Relatórios Gerenciais" description="Carregando dados dos relatórios..." />
+        <PageTitle title="Relatórios Gerais" description="Carregando dados dos relatórios..." />
         <div className="mb-6">
           <Skeleton className="h-10 w-64" />
         </div>
@@ -201,10 +196,10 @@ export default function AdminReportsPage() {
   return (
     <Container>
       <PageTitle
-        title="Relatórios Gerenciais"
+        title="Relatórios Gerais"
         description={
           <>
-            Visão geral da performance dos motoristas, utilização e custos dos veículos.
+            Visão geral da utilização e custos dos veículos.
             <span className="block mt-1 text-xs">
               Dados referentes à semana de {format(selectedWeekStart, "dd/MM", { locale: ptBR })} a {format(selectedWeekEnd, "dd/MM/yyyy", { locale: ptBR })}, ao mês de {selectedMonth} e ao ano de {selectedYear}.
             </span>
@@ -233,54 +228,7 @@ export default function AdminReportsPage() {
         </Popover>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center"><UsersIcon className="mr-2 h-5 w-5 text-primary" />Performance dos Motoristas</CardTitle>
-            <CardDescription>Resumo de quilometragem, sinistros e checklists por motorista.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {operatorPerformance && operatorPerformance.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Motorista</TableHead>
-                    <TableHead className="text-right">
-                      <CalendarRangeIcon className="mr-1 h-4 w-4 text-muted-foreground inline-block align-middle" />
-                      <span className="align-middle">KM (Semana)</span>
-                    </TableHead>
-                    <TableHead className="text-right">
-                      <CalendarDaysIcon className="mr-1 h-4 w-4 text-muted-foreground inline-block align-middle" />
-                      <span className="align-middle">KM (Mês)</span>
-                    </TableHead>
-                    <TableHead className="text-right">
-                      <AlertTriangleIcon className="mr-1 h-4 w-4 text-muted-foreground inline-block align-middle" />
-                      <span className="align-middle">Ocorrências</span>
-                    </TableHead>
-                    <TableHead className="text-right">
-                      <ListChecksIcon className="mr-1 h-4 w-4 text-muted-foreground inline-block align-middle" />
-                      <span className="align-middle">Checklists</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {operatorPerformance.map((op) => (
-                    <TableRow key={op.operatorId}>
-                      <TableCell>{op.operatorName}</TableCell>
-                      <TableCell className="text-right">{op.kmDrivenThisWeek.toLocaleString('pt-BR')}</TableCell>
-                      <TableCell className="text-right">{op.kmDrivenThisMonth.toLocaleString('pt-BR')}</TableCell>
-                      <TableCell className="text-right">{op.totalIncidentsReported}</TableCell>
-                      <TableCell className="text-right">{op.totalChecklistsSubmitted}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <p className="text-muted-foreground text-center py-4">Nenhum dado de performance de motorista disponível para o período.</p>
-            )}
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 gap-6">
         <Card className="shadow-md">
           <CardHeader className="flex flex-row items-start justify-between">
             <div>
@@ -325,66 +273,66 @@ export default function AdminReportsPage() {
             )}
           </CardContent>
         </Card>
-      </div>
-
-      <Card className="mt-6 shadow-md">
-        <CardHeader>
-            <CardTitle className="flex items-center"><DollarSignIcon className="mr-2 h-5 w-5 text-primary" />Relatório de Custos</CardTitle>
-            <CardDescription>Custos com manutenções e multas por veículo no mês de {selectedMonth} e no ano de {selectedYear}.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <KPICard kpi={{
-                    title: `Custo Total (${selectedMonth})`,
-                    value: formatCurrency(totalMonthlyCost),
-                    icon: TrendingUpIcon,
-                    bgColorClass: 'bg-red-100 dark:bg-red-900/30'
-                }} />
-                 <KPICard kpi={{
-                    title: `Custo Total (${selectedYear})`,
-                    value: formatCurrency(totalAnnualCostOverall),
-                    icon: TrendingUpIcon,
-                    bgColorClass: 'bg-destructive/10 dark:bg-destructive/20'
-                }} />
-            </div>
-            {vehicleCosts && vehicleCosts.length > 0 ? (
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Veículo (Placa)</TableHead>
-                    <TableHead className="hidden sm:table-cell">Modelo</TableHead>
-                    <TableHead className="text-right">Manut. (Mês)</TableHead>
-                    <TableHead className="text-right">Multas (Mês)</TableHead>
-                    <TableHead className="text-right font-semibold">Total (Mês)</TableHead>
-                    <TableHead className="text-right">Manut. (Ano)</TableHead>
-                    <TableHead className="text-right">Multas (Ano)</TableHead>
-                    <TableHead className="text-right font-semibold">Total (Ano)</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {vehicleCosts.map((vc) => (
-                    <TableRow key={vc.vehicleId} className="hover:bg-secondary/50">
-                      <TableCell>
-                        <Button variant="link" onClick={() => handleOpenVehicleDetails(vc)} className="p-0 h-auto font-medium text-primary hover:underline">
-                            {vc.plate}
-                        </Button>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">{vc.make} {vc.model}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(vc.totalMaintenanceCostThisMonth)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(vc.totalFineAmountThisMonth)}</TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(vc.totalCostThisMonth)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(vc.totalMaintenanceCostThisYear)}</TableCell>
-                      <TableCell className="text-right">{formatCurrency(vc.totalFineAmountThisYear)}</TableCell>
-                      <TableCell className="text-right font-semibold">{formatCurrency(vc.totalCostThisYear)}</TableCell>
+      
+        <Card className="mt-6 shadow-md">
+            <CardHeader>
+                <CardTitle className="flex items-center"><DollarSignIcon className="mr-2 h-5 w-5 text-primary" />Relatório de Custos</CardTitle>
+                <CardDescription>Custos com manutenções e multas por veículo no mês de {selectedMonth} e no ano de {selectedYear}.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <KPICard kpi={{
+                        title: `Custo Total (${selectedMonth})`,
+                        value: formatCurrency(totalMonthlyCost),
+                        icon: TrendingUpIcon,
+                        bgColorClass: 'bg-red-100 dark:bg-red-900/30'
+                    }} />
+                     <KPICard kpi={{
+                        title: `Custo Total (${selectedYear})`,
+                        value: formatCurrency(totalAnnualCostOverall),
+                        icon: TrendingUpIcon,
+                        bgColorClass: 'bg-destructive/10 dark:bg-destructive/20'
+                    }} />
+                </div>
+                {vehicleCosts && vehicleCosts.length > 0 ? (
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Veículo (Placa)</TableHead>
+                        <TableHead className="hidden sm:table-cell">Modelo</TableHead>
+                        <TableHead className="text-right">Manut. (Mês)</TableHead>
+                        <TableHead className="text-right">Multas (Mês)</TableHead>
+                        <TableHead className="text-right font-semibold">Total (Mês)</TableHead>
+                        <TableHead className="text-right">Manut. (Ano)</TableHead>
+                        <TableHead className="text-right">Multas (Ano)</TableHead>
+                        <TableHead className="text-right font-semibold">Total (Ano)</TableHead>
                     </TableRow>
-                ))}
-                </TableBody>
-            </Table>
-            ) : (
-            <p className="text-muted-foreground text-center py-4">Nenhum custo de veículo registrado para o período.</p>
-            )}
-        </CardContent>
-      </Card>
+                    </TableHeader>
+                    <TableBody>
+                    {vehicleCosts.map((vc) => (
+                        <TableRow key={vc.vehicleId} className="hover:bg-secondary/50">
+                          <TableCell>
+                            <Button variant="link" onClick={() => handleOpenVehicleDetails(vc)} className="p-0 h-auto font-medium text-primary hover:underline">
+                                {vc.plate}
+                            </Button>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell">{vc.make} {vc.model}</TableCell>
+                          <TableCell className="text-right">{formatCurrency(vc.totalMaintenanceCostThisMonth)}</TableCell>
+                          <TableCell className="text-right">{formatCurrency(vc.totalFineAmountThisMonth)}</TableCell>
+                          <TableCell className="text-right font-semibold">{formatCurrency(vc.totalCostThisMonth)}</TableCell>
+                          <TableCell className="text-right">{formatCurrency(vc.totalMaintenanceCostThisYear)}</TableCell>
+                          <TableCell className="text-right">{formatCurrency(vc.totalFineAmountThisYear)}</TableCell>
+                          <TableCell className="text-right font-semibold">{formatCurrency(vc.totalCostThisYear)}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                ) : (
+                <p className="text-muted-foreground text-center py-4">Nenhum custo de veículo registrado para o período.</p>
+                )}
+            </CardContent>
+        </Card>
+      </div>
       
       <Dialog open={vehicleDetailsDialogOpen} onOpenChange={setVehicleDetailsDialogOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col">

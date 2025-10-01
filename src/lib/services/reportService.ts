@@ -16,6 +16,7 @@ const calculateTotalKm = (logs: VehicleUsageLog[]): number => {
   return logs.reduce((sum, log) => sum + (log.kmDriven || 0), 0);
 };
 
+// This function is now superseded by the OperatorIndicatorsPage, but is kept for reference
 export async function getOperatorPerformanceReport(referenceDate: Date): Promise<OperatorPerformanceReportItem[]> {
   const allOperators = await getUsers();
   const activeOperators = allOperators.filter(u => u.role === 'operator' && (u.status === 'active' || u.status === undefined)); 

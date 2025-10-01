@@ -14,15 +14,11 @@ interface SignaturePadProps {
 
 export function SignaturePad({ field, disabled = false, defaultName }: SignaturePadProps) {
   useEffect(() => {
-    // If there's a defaultName, no current signature value, and the pad is not disabled,
-    // set the signature field to the defaultName.
-    // This is primarily for initializing the field if currentOperatorName is available.
+    // Set the signature field to the defaultName only on initial load if it's empty
     if (defaultName && !field.value && !disabled) {
       field.onChange(defaultName);
     }
-    // Re-run if defaultName, field.value, field.onChange (though stable), or disabled status changes.
-    // Using specific field properties (field.value, field.onChange) instead of the whole 'field' object
-    // prevents the effect from running on every render due to 'field' object reference changes.
+    // This effect should only run when the defaultName changes, or when the form is reset (field.value becomes undefined)
   }, [defaultName, field.value, field.onChange, disabled]);
 
   return (

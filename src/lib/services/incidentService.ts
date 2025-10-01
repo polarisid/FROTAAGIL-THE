@@ -22,7 +22,7 @@ import { getUserById } from './userService';
 
 const incidentsCollection = collection(db, 'incidents');
 
-export async function getIncidents(filters?: { vehicleId?: string; status?: string; operatorId?: string }): Promise<Incident[]> {
+export async function getIncidents(filters?: { vehicleId?: string; status?: string; operatorId?: string, startDate?: string, endDate?: string }): Promise<Incident[]> {
   let q = query(incidentsCollection, orderBy('date', 'desc'));
 
   if (filters?.vehicleId) {
@@ -33,6 +33,12 @@ export async function getIncidents(filters?: { vehicleId?: string; status?: stri
   }
   if (filters?.operatorId) {
     q = query(q, where('operatorId', '==', filters.operatorId));
+  }
+  if (filters?.startDate) {
+    q = query(q, where('date', '>=', Timestamp.fromDate(new Date(filters.startDate))));
+  }
+  if (filters?.endDate) {
+    q = query(q, where('date', '<=', Timestamp.fromDate(new Date(filters.endDate))));
   }
 
   const snapshot = await getDocs(q);

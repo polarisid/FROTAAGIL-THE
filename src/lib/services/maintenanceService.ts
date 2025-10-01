@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { db } from '@/lib/firebase';
@@ -25,9 +26,9 @@ export async function getMaintenances(filters?: { vehicleId?: string; status?: s
 
   if (filters?.vehicleId) {
     q = query(q, where('vehicleId', '==', filters.vehicleId));
-    // Adicionando ordenação para a consulta específica do diálogo de detalhes
-    // Isso provavelmente exigirá um índice: vehicleId ASC, scheduledDate DESC (ou ASC)
-    q = query(q, orderBy('scheduledDate', 'desc')); 
+    // A ordenação aqui foi removida para simplificar a necessidade de índices.
+    // A ordenação pode ser feita no lado do cliente se necessário.
+    // q = query(q, orderBy('scheduledDate', 'desc')); 
   } else if (filters?.status) {
     // Se o status é filtrado, mas não o vehicleId, ordena por scheduledDate
     q = query(q, where('status', '==', filters.status));

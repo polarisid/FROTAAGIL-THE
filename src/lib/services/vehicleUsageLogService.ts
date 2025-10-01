@@ -145,7 +145,7 @@ export async function getVehicleUsageLogs(filters: {
   operatorId?: string;
   status?: 'active' | 'completed';
 }): Promise<VehicleUsageLog[]> {
-  let q = query(vehicleUsageLogsCollection);
+  let q = query(vehicleUsageLogsCollection, orderBy('pickedUpTimestamp', 'desc'));
 
   if (filters.startDate) {
     const start = Timestamp.fromDate(new Date(filters.startDate + "T00:00:00Z"));
@@ -165,8 +165,6 @@ export async function getVehicleUsageLogs(filters: {
     q = query(q, where('status', '==', filters.status));
   }
   
-  q = query(q, orderBy('pickedUpTimestamp', 'desc'));
-
   const snapshot = await getDocs(q);
   return snapshot.docs.map(docSnap => {
     const data = docSnap.data();

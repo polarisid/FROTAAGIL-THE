@@ -1,4 +1,5 @@
 
+
 import { db } from '@/lib/firebase';
 import type { Checklist, Vehicle } from '@/lib/types';
 import {
@@ -30,10 +31,17 @@ export async function getChecklists(filters?: { vehicleId?: string; operatorId?:
     q = query(q, where('operatorId', '==', filters.operatorId));
   }
   if (filters?.date) {
-    const startDate = Timestamp.fromDate(new Date(filters.date + "T00:00:00"));
-    const endDate = Timestamp.fromDate(new Date(filters.date + "T23:59:59"));
-    q = query(q, where('date', '>=', startDate), where('date', '<=', endDate));
+    // This is simplified and might only fetch for a single day. 
+    // For a range, you'd need startDate and endDate.
+    const targetDate = new Date(filters.date + "T00:00:00");
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(targetDate.getDate() + 1);
+
+    const startDate = Timestamp.fromDate(targetDate);
+    const endDate = Timestamp.fromDate(nextDay);
+    q = query(q, where('date', '>=', startDate), where('date', '<', endDate));
   }
+
 
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
