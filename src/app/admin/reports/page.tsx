@@ -26,6 +26,7 @@ import { getMaintenances } from '@/lib/services/maintenanceService';
 import { getFines } from '@/lib/services/fineService';
 import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 
 export default function AdminReportsPage() {
   const [reportReferenceDate, setReportReferenceDate] = useState<Date>(new Date());
@@ -246,7 +247,6 @@ export default function AdminReportsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Veículo (Placa)</TableHead>
-                    <TableHead className="hidden sm:table-cell">Modelo</TableHead>
                     <TableHead className="text-right">
                        <CalendarRangeIcon className="mr-1 h-4 w-4 text-muted-foreground inline-block align-middle" />
                        <span className="align-middle">KM (Semana)</span>
@@ -255,17 +255,34 @@ export default function AdminReportsPage() {
                        <CalendarDaysIcon className="mr-1 h-4 w-4 text-muted-foreground inline-block align-middle" />
                        <span className="align-middle">KM (Mês)</span>
                     </TableHead>
+                    <TableHead className="hidden md:table-cell">Consumo Mensal</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {vehicleMileage.map((v) => (
+                  {vehicleMileage.map((v) => {
+                    const consumptionPercentage = v.monthlyMileageLimit && v.monthlyMileageLimit > 0 
+                      ? (v.kmDrivenThisMonth / v.monthlyMileageLimit) * 100
+                      : 0;
+
+                    return (
                     <TableRow key={v.vehicleId}>
                       <TableCell>{v.plate}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{v.make} {v.model}</TableCell>
                       <TableCell className="text-right">{v.kmDrivenThisWeek.toLocaleString('pt-BR')}</TableCell>
                       <TableCell className="text-right">{v.kmDrivenThisMonth.toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {v.monthlyMileageLimit && v.monthlyMileageLimit > 0 ? (
+                           <div className="flex items-center gap-2">
+                             <Progress value={consumptionPercentage} className="w-2/3" />
+                             <span className="text-xs font-medium text-muted-foreground w-1/3 text-right">
+                               {Math.round(consumptionPercentage)}%
+                             </span>
+                           </div>
+                         ) : (
+                           <span className="text-xs text-muted-foreground">Sem limite</span>
+                         )}
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  )})}
                 </TableBody>
               </Table>
             ) : (

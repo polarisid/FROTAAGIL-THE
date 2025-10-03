@@ -13,6 +13,7 @@ export interface Vehicle {
   mileage?: number;
   initialMileageSystem?: number; // KM no momento do cadastro no sistema
   pickedUpDate?: string | null;
+  monthlyMileageLimit?: number; // Limite de KM mensal para o veículo
 }
 
 export interface ChecklistItem {
@@ -149,6 +150,7 @@ export interface VehicleMileageReportItem {
   lastPickedUpDate?: string | null;
   acquisitionDate: string;
   initialMileageSystem?: number;
+  monthlyMileageLimit?: number; // Add limit to report item
 }
 
 export interface VehicleCostReportItem {

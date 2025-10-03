@@ -56,6 +56,12 @@ const vehicleFormSchema = z.object({
       .min(0, "KM não pode ser negativa.")
       .optional()
   ),
+  monthlyMileageLimit: z.preprocess(
+    (val) => (String(val).trim() === '' ? undefined : Number(String(val).replace(/\./g, '').replace(',', '.'))),
+    z.number({ invalid_type_error: "Limite de KM deve ser um número." })
+      .min(0, "Limite de KM não pode ser negativo.")
+      .optional()
+  ),
 });
 
 type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
@@ -79,6 +85,7 @@ export function EditVehicleForm({ vehicle, onFormSubmitSuccess }: EditVehicleFor
       status: vehicle.status,
       imageUrl: vehicle.imageUrl ?? '',
       mileage: vehicle.mileage ?? ('' as any), // Initialize with empty string for controlled input if possibly undefined
+      monthlyMileageLimit: vehicle.monthlyMileageLimit ?? ('' as any),
     },
   });
 
@@ -144,6 +151,7 @@ export function EditVehicleForm({ vehicle, onFormSubmitSuccess }: EditVehicleFor
       year: Number(values.year), 
       acquisitionDate: format(values.acquisitionDate, 'yyyy-MM-dd'),
       mileage: values.mileage === '' || values.mileage === undefined || values.mileage === null ? undefined : Number(values.mileage),
+      monthlyMileageLimit: values.monthlyMileageLimit === '' || values.monthlyMileageLimit === undefined ? undefined : Number(values.monthlyMileageLimit),
     };
 
     const originalAcquisitionDate = vehicle.acquisitionDate ? parseISO(vehicle.acquisitionDate) : null;
@@ -239,6 +247,20 @@ export function EditVehicleForm({ vehicle, onFormSubmitSuccess }: EditVehicleFor
                 />
                 </div>
                 
+                <FormField
+                    control={form.control}
+                    name="monthlyMileageLimit"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Limite de KM Mensal (Opcional)</FormLabel>
+                        <FormControl>
+                        <Input type="number" placeholder="Ex: 5000" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <FormField
                         control={form.control}

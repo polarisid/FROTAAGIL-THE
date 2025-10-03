@@ -83,6 +83,7 @@ export async function getVehicleMileageReport(referenceDate: Date): Promise<Vehi
       lastPickedUpDate: vehicle.pickedUpDate,
       acquisitionDate: vehicle.acquisitionDate,
       initialMileageSystem: vehicle.initialMileageSystem,
+      monthlyMileageLimit: vehicle.monthlyMileageLimit,
     });
   }
   return reportItems;

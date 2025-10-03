@@ -58,6 +58,12 @@ const newVehicleFormSchema = z.object({
       .min(0, "KM não pode ser negativa.")
       .optional()
   ),
+  monthlyMileageLimit: z.preprocess(
+    (val) => (String(val).trim() === '' ? undefined : Number(String(val).replace(/\./g, '').replace(',', '.'))),
+    z.number({ invalid_type_error: "Limite de KM deve ser um número." })
+      .min(0, "Limite de KM não pode ser negativo.")
+      .optional()
+  ),
 });
 
 type NewVehicleFormValues = z.infer<typeof newVehicleFormSchema>;
@@ -81,6 +87,7 @@ export function NewVehicleForm({ onFormSubmitSuccess }: NewVehicleFormProps) {
       status: 'active',
       imageUrl: `https://placehold.co/300x200.png`,
       mileage: '' as any, // Initialize with empty string for controlled input
+      monthlyMileageLimit: '' as any,
     },
   });
 
@@ -102,6 +109,7 @@ export function NewVehicleForm({ onFormSubmitSuccess }: NewVehicleFormProps) {
         status: 'active',
         imageUrl: `https://placehold.co/300x200.png`,
         mileage: '' as any,
+        monthlyMileageLimit: '' as any,
       });
     },
     onError: (error) => {
@@ -125,6 +133,7 @@ export function NewVehicleForm({ onFormSubmitSuccess }: NewVehicleFormProps) {
       acquisitionDate: format(values.acquisitionDate, 'yyyy-MM-dd'),
       assignedOperatorId: null,
       mileage: currentMileage,
+      monthlyMileageLimit: values.monthlyMileageLimit === '' || values.monthlyMileageLimit === undefined ? undefined : Number(values.monthlyMileageLimit),
       initialMileageSystem: currentMileage, // Garante que a KM inicial do sistema é a mesma que a KM atual no cadastro
       imageUrl: values.imageUrl || `https://placehold.co/300x200.png`,
       pickedUpDate: null, // Explicitly set pickedUpDate to null for new vehicles
@@ -214,6 +223,20 @@ export function NewVehicleForm({ onFormSubmitSuccess }: NewVehicleFormProps) {
                     )}
                 />
                 </div>
+
+                <FormField
+                    control={form.control}
+                    name="monthlyMileageLimit"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Limite de KM Mensal (Opcional)</FormLabel>
+                        <FormControl>
+                        <Input type="number" placeholder="Ex: 5000" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value)} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
                 
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <FormField
