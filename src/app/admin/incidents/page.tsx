@@ -42,7 +42,7 @@ export default function AdminIncidentsPage() {
 
 
   const filteredIncidents = incidentsData?.filter(inc => 
-    inc.description.toLowerCase().includes(searchDescription.toLowerCase())
+    inc && inc.description && inc.description.toLowerCase().includes(searchDescription.toLowerCase())
   ) || [];
 
   const isLoading = incidentsLoading || vehiclesLoading || usersLoading;
